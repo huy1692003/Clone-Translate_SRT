@@ -4,8 +4,7 @@ import {
 	type ReconnectInterval,
 	createParser,
 } from "eventsource-parser";
-import { encoding_for_model } from "tiktoken";
-
+import { getEncoding, encodingForModel } from "js-tiktoken";
 /**
  * Groups segments into groups of length `length` or less.
  */
@@ -16,7 +15,7 @@ export function groupSegmentsByTokenLength(
 	const groups: Segment[][] = [];
 	let currentGroup: Segment[] = [];
 	let currentGroupTokenCount = 0;
-	const encoder = encoding_for_model("gpt-4o-mini");
+	const encoder = encodingForModel("gpt-4o-mini");
 
 	function numTokens(text: string) {
 		const tokens = encoder.encode(text);
@@ -40,7 +39,6 @@ export function groupSegmentsByTokenLength(
 		groups.push(currentGroup);
 	}
 
-	encoder.free(); // clear encoder from memory
 	return groups;
 }
 
