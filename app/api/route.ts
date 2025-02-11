@@ -4,7 +4,11 @@ import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
 
 export const dynamic = "force-dynamic";
-
+export const config = {
+	maxDuration: 30, // Tăng timeout lên 30 giây (tối đa trên Vercel)
+	runtime: "nodejs",
+  };
+  
 const MAX_TOKENS_IN_SEGMENT = 700;
 
 const retrieveTranslation = async (text: string, language: string) => {
@@ -25,7 +29,7 @@ const retrieveTranslation = async (text: string, language: string) => {
 					},
 				],
 			});
-
+			console.timeEnd("Google Translation API Time"); // Kết thúc đo thời gian
 			return translatedText;
 		} catch (error) {
 			console.error("Translation error:", error);
