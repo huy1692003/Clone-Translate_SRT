@@ -4,7 +4,11 @@ import {
 	type ReconnectInterval,
 	createParser,
 } from "eventsource-parser";
-import { encoding_for_model } from "tiktoken";
+
+import { init, encoding_for_model } from "tiktoken";
+
+await init("/tiktoken/tiktoken_bg.wasm");
+
 
 /**
  * Groups segments into groups of length `length` or less.
