@@ -4,10 +4,7 @@ import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
 
 export const dynamic = "force-dynamic";
-export const config = {
-	maxDuration: 30, // Tăng timeout lên 30 giây (tối đa trên Vercel)
-	runtime: "nodejs",
-};
+
 
 const MAX_TOKENS_IN_SEGMENT = 700;
 
