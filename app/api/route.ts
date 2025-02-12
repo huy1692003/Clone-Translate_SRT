@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
 export const config = {
 	maxDuration: 30, // Tăng timeout lên 30 giây (tối đa trên Vercel)
 	runtime: "nodejs",
-  };
-  
+};
+
 const MAX_TOKENS_IN_SEGMENT = 700;
 
 const retrieveTranslation = async (text: string, language: string) => {
@@ -46,11 +46,12 @@ const retrieveTranslation = async (text: string, language: string) => {
 
 export async function POST(request: Request) {
 	try {
-		const { content, language } = await request.json();
+		const { content, language, indexLine } = await request.json();
 		const segments = content.split(/\r\n\r\n|\n\n/).map(parseSegment);
 		const groups = groupSegmentsByTokenLength(segments, MAX_TOKENS_IN_SEGMENT);
 
 		let currentIndex = 0;
+		let index = indexLine ?? 0;
 		const encoder = new TextEncoder();
 
 		const stream = new ReadableStream({
@@ -64,7 +65,8 @@ export async function POST(request: Request) {
 					for (const segment of translatedSegments) {
 						if (segment.trim()) {
 							const originalSegment = segments[currentIndex];
-							const srt = `${++currentIndex}\n${originalSegment?.timestamp || ""}\n${segment.trim()}\n\n`;
+							currentIndex++
+							const srt = `${++index}\n${originalSegment?.timestamp || ""}\n${segment.trim()}\n\n`;
 							controller.enqueue(encoder.encode(srt));
 						}
 					}

@@ -14,40 +14,44 @@ function classNames(...classes: string[]) {
 }
 
 const triggerFileDownload = (filename: string, content: string) => {
-	const element = document.createElement("a");
-	const file = new Blob([content], { type: "text/plain" });
-	element.href = URL.createObjectURL(file);
-	element.download = filename;
-	document.body.appendChild(element);
-	element.click();
-};
+    const element = document.createElement("a");
+    const file = new Blob([content], { type: "text/plain" });
 
-function Translating({ chunks }: { chunks: Chunk[] }) {
-	return (
-		<div className="flex gap-y-2 flex-col-reverse">
-			{chunks.map((chunk) => (
-				<Timestamp key={`${chunk.index}-${chunk.start}`} {...chunk} />
-			))}
-		</div>
-	);
-}
+    // Lấy thời gian hiện tại và format thành YYYYMMDD_HHmmss
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[-:T]/g, "").split(".")[0]; // YYYYMMDDHHmmss
+
+    // Tạo tên file theo yêu cầu
+    const formattedFilename = `translated_${timestamp}.srt`;
+
+    element.href = URL.createObjectURL(file);
+    element.download = formattedFilename;
+    document.body.appendChild(element);
+    element.click();
+
+    // Xóa URL để tránh rò rỉ bộ nhớ
+    setTimeout(() => URL.revokeObjectURL(element.href), 1000);
+};
 
 
 export default function Home() {
 	const [status, setStatus] = React.useState<"idle" | "busy" | "done">("idle");
 	const [translatedSrt, setTranslatedSrt] = React.useState("");
+	const [progress, setProgress] = React.useState(0);
 	const [translatedChunks, setTranslatedChunks] = React.useState<Chunk[]>([]);
 	const [originalChunks, setOriginalChunks] = React.useState<Chunk[]>([]);
 
+
 	useEffect(() => {
 		if (status === "done") {
-			alert("Chuyển đổi thành công hãy kiểm tra thư mục tải xuống của bạn");
+			alert("✅ Chuyển đổi thành công hãy kiểm tra thư mục tải xuống của bạn");
 			window.location.reload();
 		}
 	}, [status])
 	async function handleStream(response: Response) {
 		const data = response.body;
 		if (!data) return;
+		console.log(data)
 
 		let content = "";
 		let doneReading = false;
@@ -82,74 +86,64 @@ export default function Home() {
 			}
 
 			setStatus("busy");
-			// Reset previous state
 			setTranslatedSrt("");
 			setTranslatedChunks([]);
 			setOriginalChunks([]);
+			setProgress(0); // Reset tiến trình về 0%
 
 			const segments = content.split(/\r\n\r\n|\n\n/).filter((segment) => {
 				const lines = segment.split(/\r\n|\n/);
 				const id = Number.parseInt(lines[0], 10);
 				return (
-					lines.length >= 3 && // Must have at least id, timestamp, and text
-					!Number.isNaN(id) && // First line must be a number
-					lines[1].includes(" --> ")
-				); // Second line must be a timestamp
+					lines.length >= 3 && !Number.isNaN(id) && lines[1].includes(" --> ")
+				);
 			});
 
 			if (!segments.length) {
 				setStatus("idle");
-				alert("Invalid SRT file format. Please check your file.");
+				alert("📂Vui lòng chọn đúng định dạng file SRT");
 				return;
 			}
 
-			try {
-				const originalSegments = segments.map(parseSegment);
-				setOriginalChunks(
-					originalSegments.map((seg) => ({
-						index: seg.id.toString(),
-						start: seg.timestamp.split(" --> ")[0],
-						end: seg.timestamp.split(" --> ")[1],
-						text: seg.text,
-					})),
-				);
-			} catch (error) {
-				setStatus("idle");
-				alert("Error parsing SRT file. Please check the file format.");
-				console.error("Parsing error:", error);
-				return;
+			const batchSize = 20;
+			const batches = [];
+			for (let i = 0; i < segments.length; i += batchSize) {
+				batches.push(segments.slice(i, i + batchSize));
 			}
 
-			const response = await fetch("/api", {
-				method: "POST",
-				body: JSON.stringify({ content, language }),
-				headers: { "Content-Type": "application/json" },
-			});
+			console.log("Batches:", batches);
+			let translatedContent = "";
+			let indexLine: number = 0;
+			for (let i = 0; i < batches.length; i++) {
+				const response = await fetch("/api/", {
+					method: "POST",
+					body: JSON.stringify({ content: batches[i].join("\n\n"), language ,indexLine}),
+					headers: { "Content-Type": "application/json" },
+				});
 
-			if (response.ok) {
-				const content = await handleStream(response);
-				const filename = `${language}.srt`;
-				if (content) {
-					setStatus("done");
-					triggerFileDownload(filename, content);
+				if (response.ok) {
+					const batchContent = await handleStream(response);
+					translatedContent += batchContent;
+					indexLine += batchSize;
+					setProgress(Math.round(((i + 1) / batches.length) * 100)); // Cập nhật phần trăm tiến trình
 				} else {
+					console.error("Lỗi khi gửi batch", i);
 					setStatus("idle");
-					alert("Error occurred while reading the file");
+					return;
 				}
-			} else {
-				setStatus("idle");
-				console.error(
-					"Error occurred while submitting the translation request",
-				);
+			}
+
+			if (translatedContent) {
+				setStatus("done");
+				triggerFileDownload(`${language}.srt`, translatedContent);
 			}
 		} catch (error) {
 			setStatus("idle");
-			console.error(
-				"Error during file reading and translation request:",
-				error,
-			);
+			console.error("Lỗi trong quá trình xử lý:", error);
 		}
 	}
+
+
 
 	return (
 		<main
@@ -166,7 +160,7 @@ export default function Home() {
 							roaldDahl.className,
 						)}
 					>
-						Translate any SRT, to any language
+						Dịch file SRT sang ngôn ngữ bất kỳ !
 					</h1>
 					<Form onSubmit={handleSubmit} />
 				</>
@@ -179,15 +173,15 @@ export default function Home() {
 							roaldDahl.className,
 						)}
 					>
-						Translating&hellip;
+						Đang chuyển đổi ... &hellip;
 					</h1>
-					<p>(The file will automatically download when it's done)</p>
-					<Translating
-						chunks={translatedChunks.map((chunk, i) => ({
-							...chunk,
-							originalText: originalChunks[i]?.text,
-						}))}
-					/>
+					<p className="text-center">Tiến trình: {progress}%</p>
+					<div className="w-full bg-gray-200 rounded-full h-4 mt-2">
+						<div
+							className="bg-blue-500 h-4 rounded-full transition-all"
+							style={{ width: `${progress}%` }}
+						></div>
+					</div>
 				</>
 			)}
 			{status === "done" && (
