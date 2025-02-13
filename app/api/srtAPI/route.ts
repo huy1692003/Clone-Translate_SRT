@@ -6,7 +6,7 @@ import { generateText } from "ai";
 export const dynamic = "force-dynamic";
 
 
-const MAX_TOKENS_IN_SEGMENT = 700;
+const MAX_TOKENS_IN_SEGMENT = 30000;
 
 const retrieveTranslation = async (text: string, language: string) => {
 	let retries = 3;
@@ -16,13 +16,13 @@ const retrieveTranslation = async (text: string, language: string) => {
 				model: google("gemini-2.0-flash"),
 				messages: [
 					{
-						role: "system",
-						content:
-							"You are an experienced semantic translator, specialized in creating SRT files. Separate translation segments with the '|' symbol",
+						"role": "system",
+						"content": "You are a professional semantic translator with years of experience in creating SRT files. Translate the content naturally and fluently while preserving the original meaning. Separate translation segments with the '###' symbol to ensure accurate segmentation."
 					},
+					
 					{
 						role: "user",
-						content: `Translate this to ${language}: ${text}`,
+						content: `Translate this to  ${language}: ${text}`,
 					},
 				],
 			});
@@ -50,15 +50,15 @@ export async function POST(request: Request) {
 		let currentIndex = 0;
 		let index = indexLine ?? 0;
 		const encoder = new TextEncoder();
-
 		const stream = new ReadableStream({
 			async start(controller) {
 				for (const group of groups) {
-					const text = group.map((segment) => segment.text).join("|");
+					const text = group.map((segment) => segment.text).join("###");
+					// console.log("Chưa dịch: ",total.length)
 					const translatedText = await retrieveTranslation(text, language);
 					if (!translatedText) continue;
-
-					const translatedSegments = translatedText.split("|");
+					const translatedSegments = translatedText.split("###");
+					
 					for (const segment of translatedSegments) {
 						if (segment.trim()) {
 							const originalSegment = segments[currentIndex];

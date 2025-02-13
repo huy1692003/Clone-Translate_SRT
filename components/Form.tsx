@@ -47,7 +47,7 @@ const readFileContents = async (file: File): Promise<string> => {
 
 const SrtForm: React.FC<Props> = ({ onSubmit }) => {
   const [file, setFile] = useState<File>();
-  const [language, setLanguage] = useState<string>("");
+  const [language, setLanguage] = useState<string>("Vietnamese");
   const [dragging, setDragging] = useState<boolean>(false);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -158,6 +158,7 @@ const SrtForm: React.FC<Props> = ({ onSubmit }) => {
               <select
                 id="language"
                 value={language}
+                
                 onChange={(e) => setLanguage(e.target.value)}
                 className="px-4 py-2 mt-4 ml-2 bg-white rounded-lg border border-gray-300 md:mt-0"
               >

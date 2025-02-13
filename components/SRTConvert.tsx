@@ -63,7 +63,7 @@ export default function SRT() {
 			doneReading = done;
 			const chunk = decoder.decode(value);
 
-			content += `${chunk}\n\n`;
+			content += `${chunk}`;
 			setTranslatedSrt((prev) => prev + chunk);
 			if (chunk.trim().length)
 				setTranslatedChunks((prev) => [...prev, parseChunk(chunk)]);
@@ -105,7 +105,7 @@ export default function SRT() {
 				return;
 			}
 
-			const batchSize = 10;
+			const batchSize = 37;
 			const batches = [];
 			for (let i = 0; i < segments.length; i += batchSize) {
 				batches.push(segments.slice(i, i + batchSize));
