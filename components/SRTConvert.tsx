@@ -105,7 +105,7 @@ export default function SRT() {
 				return;
 			}
 
-			const batchSize = 20;
+			const batchSize = 10;
 			const batches = [];
 			for (let i = 0; i < segments.length; i += batchSize) {
 				batches.push(segments.slice(i, i + batchSize));
