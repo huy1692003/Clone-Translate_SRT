@@ -67,7 +67,7 @@ export default function Home() {
 					{pageCurrent !== "main" && (
 						<button
 							onClick={() => setPageCurrent("main")}
-							className="mx-auto block w-[50%]  bg-blue-500 text-white py-2 rounded-md"
+							className="mt-2 mx-auto block w-[50%]  bg-blue-500 text-white py-2 rounded-md"
 						>
 							Quay lại trang chủ
 						</button>)}
