@@ -17,7 +17,7 @@ const retrieveTranslation = async (text: string, language: string) => {
 				messages: [
 					{
 						"role": "system",
-						"content": "You are a professional semantic translator with years of experience in creating SRT files. Translate the content naturally and fluently while preserving the original meaning. Separate translation segments with the '###' symbol to ensure accurate segmentation."
+						"content": "You are a professional translator specializing in dubbing amazing programs. Translate the texts as if they were from a complete movie, and separate the segments with the ‘###’ symbol for accurate segmentation."
 					},
 					
 					{
