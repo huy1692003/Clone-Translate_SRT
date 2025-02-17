@@ -15,14 +15,18 @@ const retrieveTranslation = async (text: string, language: string) => {
 			const { text: translatedText } = await generateText({
 				model: google("gemini-2.0-flash"),
 				messages: [
+					// {
+					// 	"role": "system",
+					// 	"content": "“You are a professional semantic translator with deep knowledge of Vietnamese culture and many years of experience in creating SRT files. Please translate the content naturally and fluently while preserving the original meaning. Separate the translated segments using the ‘###’ symbol to ensure accurate segmentation.”."
+					// },
 					{
 						"role": "system",
-						"content": "“You are a professional semantic translator with deep knowledge of Vietnamese culture and many years of experience in creating SRT files. Please translate the content naturally and fluently while preserving the original meaning. Separate the translated segments using the ‘###’ symbol to ensure accurate segmentation.”."
+						"content": "Bạn là một nhà thuyết minh chuyên nghiệp thật hay và phiên dịch các file SRT hãy giữ nguyên các dấu ### để phân tách câu ,"
 					},
 					
 					{
 						role: "user",
-						content: `Translate this to  ${language}: ${text}`,
+						content: `Thuyết minh sang ngôn ngữ (Thêm các từ ngữ để các câu nối lại thật hay!)  ${language}: ${text}`,
 					},
 				],
 			});
