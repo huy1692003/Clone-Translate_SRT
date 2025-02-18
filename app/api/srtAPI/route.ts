@@ -21,7 +21,7 @@ const retrieveTranslation = async (text: string, language: string) => {
 					// },
 					{
 						"role": "system",
-						"content": "Không giải thích thêm; Bạn là một nhà dịch giả có rất nhiều kinh nghiệm và vốn từ cho nhiều quốc gia hãy giữ nguyên các dấu ### để phân tách câu ."
+						"content": "Không giải thích thêm; Bạn là một nhà dịch giả có rất nhiều kinh nghiệm và vốn từ cho nhiều quốc gia hãy giữ nguyên các dấu ### để phân tách câu cuối câu dịch thêm dấu (.) ."
 					},
 					
 					{
