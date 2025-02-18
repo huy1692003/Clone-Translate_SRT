@@ -26,7 +26,7 @@ const retrieveTranslation = async (text: string, language: string) => {
 					
 					{
 						role: "user",
-						content: `Dịch giả sang ngôn ngữ  ${language}(Có thể thêm 1-5 từ để câu hay hơn) : ${text}`,
+						content: `Dịch giả sang ngôn ngữ  ${language}(Có thể thêm 1-4 từ để câu hay hơn và liên kết nhau có nghĩa) : ${text}`,
 					},
 				],
 			});
