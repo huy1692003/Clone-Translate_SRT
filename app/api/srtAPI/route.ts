@@ -21,12 +21,12 @@ const retrieveTranslation = async (text: string, language: string) => {
 					// },
 					{
 						"role": "system",
-						"content": "Không giải thích thêm; Bạn là một nhà dịch giả có rất nhiều kinh nghiệm và vốn từ cho nhiều quốc gia hãy giữ nguyên các dấu ###."
+						"content": "Không giải thích thêm; Bạn là một nhà dịch giả có rất nhiều kinh nghiệm ở Việt Nam hãy giữ nguyên các dấu ### để tách câu."
 					},
 					
 					{
 						role: "user",
-						content: `Dịch giả sang ngôn ngữ ${language}(Có thể thêm 1-2 từ để câu văn hài hòa,mỗi câu để dấu chấm ở cuối) : ${text}`,
+						content: `Dịch giả sang ngôn ngữ ${language}(Có thể thêm 1-2 từ để câu văn hài hòa) : ${text}`,
 					},
 				],
 			});
