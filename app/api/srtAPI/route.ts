@@ -8,42 +8,90 @@ export const dynamic = "force-dynamic";
 
 const MAX_TOKENS_IN_SEGMENT = 30000;
 
-const retrieveTranslation = async (text: string, language: string) => {
-	let retries = 3;
-	while (retries > 0) {
-		try {
-			const { text: translatedText } = await generateText({
-				model: google("gemini-2.0-flash"),
-				messages: [
-					// {
-					// 	"role": "system",
-					// 	"content": "“You are a professional semantic translator with deep knowledge of Vietnamese culture and many years of experience in creating SRT files. Please translate the content naturally and fluently while preserving the original meaning. Separate the translated segments using the ‘###’ symbol to ensure accurate segmentation.”."
-					// },
-					{
-						"role": "system",
-						"content": "Không giải thích thêm; Bạn là một nhà dịch giả có rất nhiều kinh nghiệm ở Việt Nam hãy giữ nguyên các dấu ### để tách câu."
-					},
+// const retrieveTranslation = async (text: string, language: string) => {
+// 	let retries = 3;
+// 	while (retries > 0) {
+// 		try {
+// 			const { text: translatedText } = await generateText({
+// 				model: google("gemini-2.0-flash"),
+// 				messages: [
+// 					// {
+// 					// 	"role": "system",
+// 					// 	"content": "“You are a professional semantic translator with deep knowledge of Vietnamese culture and many years of experience in creating SRT files. Please translate the content naturally and fluently while preserving the original meaning. Separate the translated segments using the ‘###’ symbol to ensure accurate segmentation.”."
+// 					// },
+// 					{
+// 						"role": "system",
+// 						"content": "Không giải thích thêm; Bạn là một nhà dịch giả có rất nhiều kinh nghiệm ở Việt Nam hãy giữ nguyên các dấu ### để tách câu."
+// 					},
 					
-					{
-						role: "user",
-						content: `Dịch giả sang ngôn ngữ ${language}(Có thể thêm 1-2 từ để câu văn hài hòa) : ${text}`,
-					},
-				],
-			});
-			console.timeEnd("Google Translation API Time"); // Kết thúc đo thời gian
-			return translatedText;
-		} catch (error) {
-			console.error("Translation error:", error);
-			if (retries > 1) {
-				console.warn("Retrying translation...");
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-				retries--;
-				continue;
-			}
-			throw error;
-		}
-	}
+// 					{
+// 						role: "user",
+// 						content: `Dịch giả sang ngôn ngữ ${language}(Có thể thêm 1-2 từ để câu văn hài hòa) : ${text}`,
+// 					},
+// 				],
+// 			});
+// 			console.timeEnd("Google Translation API Time"); // Kết thúc đo thời gian
+// 			return translatedText;
+// 		} catch (error) {
+// 			console.error("Translation error:", error);
+// 			if (retries > 1) {
+// 				console.warn("Retrying translation...");
+// 				await new Promise((resolve) => setTimeout(resolve, 1000));
+// 				retries--;
+// 				continue;
+// 			}
+// 			throw error;
+// 		}
+// 	}
+// };
+const apiKey = "sk-VRDPwYvI93SjGshOpeWp0yyvAK5hRM14c9iEDCXsXufaJBLl"; 
+const baseUrl = "https://api.chatanywhere.org/v1"; // Thay đổi URL nếu dùng proxy
+
+const retrieveTranslation = async (text, language) => {
+    let retries = 3;
+    while (retries > 0) {
+        try {
+            console.time("OpenAI Translation API Time"); // Bắt đầu đo thời gian
+            
+            const response = await fetch(`${baseUrl}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o-mini",
+                    messages: [
+                        {
+                            "role": "system",
+                            "content": "Không giải thích thêm; Bạn là một nhà dịch giả có rất nhiều kinh nghiệm ở Việt Nam hãy giữ nguyên các dấu ### để tách câu."
+                        },
+                        {
+                            "role": "user",
+                            "content": `Dịch sang ngôn ngữ ${language} (Có thể thêm 1-2 từ để câu văn hài hòa) : ${text}`
+                        }
+                    ],
+                    temperature: 0.7
+                })
+            });
+
+            const data = await response.json();
+            console.timeEnd("OpenAI Translation API Time"); // Kết thúc đo thời gian
+            
+            return data.choices[0].message.content;
+        } catch (error) {
+            console.error("Translation error:", error);
+            if (retries > 1) {
+                console.warn("Retrying translation...");
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                retries--;
+                continue;
+            }
+            throw error;
+        }
+    }
 };
+
 
 export async function POST(request: Request) {
 	try {
