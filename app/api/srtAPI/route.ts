@@ -1,7 +1,7 @@
 import { groupSegmentsByTokenLength } from "@/lib/srt";
 import { parseSegment } from "@/lib/client";
-import { google } from "@ai-sdk/google";
-import { generateText } from "ai";
+// import { google } from "@ai-sdk/google";
+// import { generateText } from "ai";
 
 export const dynamic = "force-dynamic";
 
