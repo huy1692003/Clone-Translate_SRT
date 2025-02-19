@@ -47,7 +47,7 @@ const MAX_TOKENS_IN_SEGMENT = 30000;
 const apiKey = "sk-VRDPwYvI93SjGshOpeWp0yyvAK5hRM14c9iEDCXsXufaJBLl"; 
 const baseUrl = "https://api.chatanywhere.org/v1"; // Thay đổi URL nếu dùng proxy
 
-const retrieveTranslation = async (text, language) => {
+const retrieveTranslation = async (text:any, language:any) => {
     let retries = 3;
     while (retries > 0) {
         try {
