@@ -49,7 +49,14 @@ const MAX_TOKENS_IN_SEGMENT = 30000;
 // 		}
 // 	}
 // };
+<<<<<<< HEAD
 const retrieveTranslation = async (text: string, language: string) => {
+=======
+const apiKey = "sk-VRDPwYvI93SjGshOpeWp0yyvAK5hRM14c9iEDCXsXufaJBLl"; 
+const baseUrl = "https://api.chatanywhere.org/v1"; // Thay đổi URL nếu dùng proxy
+
+const retrieveTranslation = async (text:any, language:any) => {
+>>>>>>> 8ea8cc90753e6a648cbc375de900e1333b00e0a2
     let retries = 3;
     while (retries > 0) {
         try {
